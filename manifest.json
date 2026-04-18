@@ -1,0 +1,20 @@
+{
+  "name": "오늘의 소비일기",
+  "short_name": "소비일기",
+  "description": "월 예산 기반 개인 가계부. 충동·합리화 습관을 함께 다스려봐요.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFF6F0",
+  "theme_color": "#FF8BA7",
+  "orientation": "portrait",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#FF8BA7" />
+  <title>🧸 오늘의 소비일기</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="소비일기">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --bg: #FFF6F0;
+      --card: #FFFFFF;
+      --primary: #FF8BA7;
+      --primary-soft: #FFC6D3;
+      --mint: #A8E6D0;
+      --peach: #FFD3B5;
+      --lavender: #E0BBE4;
+      --sky: #B5D8EB;
+      --coral: #FFAAA5;
+      --green: #8FD3A8;
+      --danger-red: #E85C5C;
+      --text: #4A3C35;
+      --text-muted: #9C8F85;
+      --border: #F5E6DC;
+      --danger: #FF6B7A;
+      --shadow: 0 4px 14px rgba(255, 139, 167, 0.12);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Jua', 'Gaegu', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+      font-size: 16px;
+      overscroll-behavior: none;
+    }
+
+    body {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 110px;
+      position: relative;
+    }
+
+    .header { padding: 20px 20px 12px; text-align: center; }
+    .header h1 { font-size: 22px; letter-spacing: 0.5px; }
+    .header .sub {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .tabs {
+      display: flex;
+      margin: 0 14px 16px;
+      background: white;
+      border-radius: 18px;
+      padding: 5px;
+      box-shadow: var(--shadow);
+      gap: 2px;
+    }
+    .tab {
+      flex: 1;
+      padding: 8px 2px;
+      text-align: center;
+      border-radius: 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      line-height: 1;
+    }
+    .tab .t-ico { font-size: 17px; }
+    .tab.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(255, 139, 167, 0.35);
+    }
+
+    .page { display: none; padding: 0 18px; }
+    .page.active { display: block; animation: fadeIn 0.25s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    /* 식물 배너 */
+    .plant-banner {
+      background: linear-gradient(135deg, #D4F0DF 0%, #E8F5E0 100%);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+    .plant-banner.wilted {
+      background: linear-gradient(135deg, #FFE0DC 0%, #FFF0EC 100%);
+    }
+    .plant-emoji { font-size: 36px; }
+    .plant-text {
+      flex: 1;
+      font-family: 'Gaegu', sans-serif;
+    }
+    .plant-text .big { font-size: 15px; color: var(--text); font-weight: 700; }
+    .plant-text .small { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* 오늘의 한마디 */
+    .quote-card {
+      background: white;
+      border-radius: 16px;
+      padding: 12px 14px 12px 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid var(--coral);
+      position: relative;
+    }
+    .quote-card.punch {
+      border-left-color: var(--danger-red);
+      background: linear-gradient(90deg, #FFECEC 0%, #FFFFFF 40%);
+    }
+    .quote-card.cheer {
+      border-left-color: var(--mint);
+      background: linear-gradient(90deg, #E8F7F0 0%, #FFFFFF 40%);
+    }
+    .quote-icon { font-size: 20px; flex-shrink: 0; }
+    .quote-text {
+      flex: 1;
+      font-family: 'Gaegu', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    /* 예산 카드 */
+    .budget-card {
+      background: linear-gradient(135deg, #FFB6C1 0%, #FFC6D3 100%);
+      border-radius: 22px;
+      padding: 22px 20px;
+      color: white;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 20px rgba(255, 139, 167, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .budget-card::before {
+      content: ""; position: absolute; top: -30px; right: -30px;
+      width: 120px; height: 120px;
+      background: rgba(255,255,255,0.15); border-radius: 50%;
+    }
+    .budget-card::after {
+      content: ""; position: absolute; bottom: -40px; left: -20px;
+      width: 80px; height: 80px;
+      background: rgba(255,255,255,0.1); border-radius: 50%;
+    }
+    .budget-label { font-size: 13px; opacity: 0.9; margin-bottom: 4px; position: relative; }
+    .budget-amount { font-size: 30px; position: relative; cursor: pointer; }
+    .budget-amount small { font-size: 16px; opacity: 0.85; }
+    .budget-edit-hint {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 11px; opacity: 0.75; margin-top: 2px; position: relative;
+    }
+    .progress-wrap { margin-top: 16px; position: relative; }
+    .progress-bar {
+      height: 10px; background: rgba(255,255,255,0.35);
+      border-radius: 999px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: white; border-radius: 999px;
+      transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    }
+    .progress-info {
+      display: flex; justify-content: space-between;
+      margin-top: 8px; font-size: 13px; position: relative;
+    }
+
+    /* 미니카드 */
+    .summary-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 16px;
+    }
+    .mini-card {
+      background: white; border-radius: 16px;
+      padding: 14px; box-shadow: var(--shadow);
+    }
+    .mini-card .label {
+      font-size: 12px; color: var(--text-muted);
+      margin-bottom: 4px; font-family: 'Gaegu', sans-serif;
+    }
+    .mini-card .value { font-size: 18px; }
+    .mini-card.remain .value { color: var(--mint); }
+    .mini-card.remain .value.over { color: var(--danger); }
+    .mini-card.used .value { color: var(--primary); }
+
+    /* 섹션 */
+    .section-title {
+      font-size: 15px; margin: 20px 4px 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .cat-list {
+      background: white; border-radius: 18px;
+      padding: 8px 14px; box-shadow: var(--shadow);
+    }
+    .cat-item {
+      display: flex; align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .cat-item:last-child { border-bottom: none; }
+    .cat-emoji {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px; margin-right: 12px;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .cat-info { flex: 1; }
+    .cat-name { font-size: 14px; }
+    .cat-bar-wrap {
+      height: 5px; background: var(--border);
+      border-radius: 999px; margin-top: 4px; overflow: hidden;
+    }
+    .cat-bar-fill { height: 100%; border-radius: 999px; transition: width 0.4s; }
+    .cat-amount { font-size: 14px; margin-left: 10px; color: var(--text); }
+
+    /* 내역 */
+    .expense-day { margin-bottom: 18px; }
+    .day-header {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 14px; color: var(--text-muted);
+      margin: 4px 4px 8px;
+      display: flex; justify-content: space-between;
+    }
+    .expense-list {
+      background: white; border-radius: 18px;
+      padding: 6px 14px; box-shadow: var(--shadow);
+    }
+    .expense-item {
+      display: flex; align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px dashed var(--border);
+      cursor: pointer;
+    }
+    .expense-item:last-child { border-bottom: none; }
+    .expense-item:active { opacity: 0.6; }
+    .expense-emoji {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px; margin-right: 12px;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .expense-detail { flex: 1; min-width: 0; }
+    .expense-memo {
+      font-size: 14px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .expense-memo.empty { color: var(--text-muted); }
+    .expense-meta {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 12px; color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .badge {
+      display: inline-block; color: white;
+      padding: 1px 8px; border-radius: 999px;
+      font-size: 10px; margin-left: 4px;
+    }
+    .badge.rtn { background: var(--coral); }
+    .badge.inst { background: var(--danger-red); }
+    .badge.trigger { background: var(--lavender); color: var(--text); }
+    .expense-amount { font-size: 15px; margin-left: 8px; flex-shrink: 0; }
+
+    .empty-state {
+      text-align: center; padding: 50px 20px;
+      color: var(--text-muted);
+      font-family: 'Gaegu', sans-serif;
+    }
+    .empty-state .big { font-size: 48px; margin-bottom: 10px; }
+    .empty-state .msg { font-size: 15px; line-height: 1.6; }
+
+    /* 반성 탭 */
+    .reflect-hero {
+      background: linear-gradient(135deg, #FFAAA5 0%, #FFC6D3 100%);
+      border-radius: 22px;
+      padding: 24px 20px;
+      color: white; margin-bottom: 16px;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(255,170,165,0.28);
+    }
+    .reflect-hero .label { font-size: 13px; opacity: 0.95; margin-bottom: 6px; }
+    .reflect-hero .amount { font-size: 32px; }
+    .reflect-hero .msg {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 14px; margin-top: 10px; opacity: 0.95;
+    }
+    .trigger-card {
+      background: white;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+    .trigger-card h3 {
+      font-size: 14px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .trigger-rank {
+      display: flex; align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .trigger-rank:last-child { border-bottom: none; }
+    .trigger-rank .rank-num {
+      width: 24px; height: 24px;
+      background: var(--primary-soft);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: white;
+      margin-right: 10px; flex-shrink: 0;
+    }
+    .trigger-rank .rank-emoji { font-size: 22px; margin-right: 10px; }
+    .trigger-rank .rank-info { flex: 1; }
+    .trigger-rank .rank-label { font-size: 14px; }
+    .trigger-rank .rank-detail {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 12px; color: var(--text-muted);
+    }
+    .trigger-rank .rank-amount { font-size: 13px; color: var(--coral); }
+
+    /* 찜 — 마음 접은 기록 */
+    .release-stats {
+      background: linear-gradient(135deg, #A8E6D0 0%, #D4F0DF 100%);
+      border-radius: 18px;
+      padding: 16px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 14px rgba(168, 230, 208, 0.25);
+    }
+    .rs-badge { font-size: 32px; }
+    .rs-main { flex: 1; }
+    .rs-label {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 12px;
+      color: rgba(74,60,53,0.7);
+      margin-bottom: 2px;
+    }
+    .rs-big { font-size: 15px; color: #2A7F5E; font-weight: 700; }
+    .rs-total {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 12px;
+      color: rgba(74,60,53,0.6);
+      margin-top: 3px;
+    }
+    .released-item {
+      display: flex; align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .released-item:last-child { border-bottom: none; }
+    .released-item .r-emoji {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px; font-size: 18px; margin-right: 12px;
+      flex-shrink: 0;
+    }
+    .released-item .r-info { flex: 1; min-width: 0; }
+    .released-item .r-name {
+      font-size: 14px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .released-item .r-meta {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 12px; color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .released-item .r-saved {
+      font-size: 13px; color: #2A7F5E;
+      flex-shrink: 0; margin-left: 8px;
+    }
+
+    .wish-intro {
+      background: linear-gradient(135deg, #FFD3E0 0%, #FFEDF2 100%);
+      border-radius: 18px; padding: 14px 16px;
+      margin-bottom: 14px;
+      font-family: 'Gaegu', sans-serif;
+      font-size: 13px; color: var(--text);
+      line-height: 1.5;
+    }
+    .wish-item {
+      background: white;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+    }
+    .wish-top {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .wish-top .emoji {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px; font-size: 20px; flex-shrink: 0;
+    }
+    .wish-top .info { flex: 1; min-width: 0; }
+    .wish-top .name {
+      font-size: 15px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .wish-top .meta {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 12px; color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .wish-top .amt { font-size: 14px; color: var(--primary); }
+    .wish-btns { display: flex; gap: 8px; }
+    .wish-btn {
+      flex: 1; height: 38px;
+      border-radius: 12px; border: none;
+      font-family: inherit; font-size: 13px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .wish-btn:active { transform: scale(0.96); }
+    .wish-btn.buy {
+      background: var(--primary); color: white;
+      box-shadow: 0 2px 8px rgba(255,139,167,0.3);
+    }
+    .wish-btn.buy:disabled {
+      background: var(--border); color: var(--text-muted);
+      box-shadow: none; cursor: not-allowed;
+    }
+    .wish-btn.release {
+      background: white; color: var(--text-muted);
+      border: 1.5px solid var(--border);
+    }
+
+    /* 할부 */
+    .inst-hero {
+      background: linear-gradient(135deg, #FF7A8C 0%, #FFAAA5 100%);
+      border-radius: 22px;
+      padding: 22px 20px;
+      color: white; margin-bottom: 14px;
+      box-shadow: 0 6px 20px rgba(232,92,92,0.28);
+      position: relative; overflow: hidden;
+    }
+    .inst-hero::before {
+      content: "⚠️"; position: absolute;
+      top: -10px; right: -5px;
+      font-size: 90px; opacity: 0.15;
+    }
+    .inst-hero .label { font-size: 13px; opacity: 0.95; position: relative; }
+    .inst-hero .amount { font-size: 30px; margin-top: 4px; position: relative; }
+    .inst-hero .sub-info {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 13px; margin-top: 10px; opacity: 0.95;
+      position: relative;
+      border-top: 1px solid rgba(255,255,255,0.25);
+      padding-top: 10px;
+    }
+    .inst-item {
+      background: white;
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+      display: flex; align-items: center;
+      cursor: pointer;
+    }
+    .inst-item:active { opacity: 0.7; }
+    .inst-item .emoji {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px; font-size: 20px; flex-shrink: 0;
+      margin-right: 12px;
+    }
+    .inst-item .info { flex: 1; min-width: 0; }
+    .inst-item .name {
+      font-size: 14px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .inst-item .detail {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 12px; color: var(--text-muted); margin-top: 2px;
+    }
+    .inst-item .amt-col { text-align: right; flex-shrink: 0; margin-left: 8px; }
+    .inst-item .total { font-size: 14px; color: var(--danger-red); }
+    .inst-item .monthly {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 11px; color: var(--text-muted);
+    }
+
+    /* FAB */
+    .fab {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      max-width: 440px; width: calc(100% - 40px);
+      height: 56px;
+      background: var(--primary);
+      color: white; border: none;
+      border-radius: 28px;
+      font-family: inherit; font-size: 16px;
+      box-shadow: 0 8px 24px rgba(255,139,167,0.4);
+      cursor: pointer;
+      z-index: 50;
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px;
+      transition: transform 0.15s;
+    }
+    .fab:active { transform: translateX(-50%) scale(0.96); }
+    .fab.hidden { display: none; }
+
+    /* 모달 */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(74,60,53,0.45);
+      display: none;
+      align-items: flex-end; justify-content: center;
+      z-index: 100;
+      animation: fadeBg 0.2s;
+    }
+    .modal-backdrop.active { display: flex; }
+    @keyframes fadeBg { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal {
+      background: var(--bg);
+      width: 100%; max-width: 480px;
+      border-radius: 28px 28px 0 0;
+      padding: 22px 20px 24px;
+      max-height: 92vh; overflow-y: auto;
+      animation: slideUp 0.28s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+    .modal-handle {
+      width: 40px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+    .modal-title { font-size: 18px; margin-bottom: 18px; text-align: center; }
+
+    .field { margin-bottom: 14px; }
+    .field-label {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 13px; color: var(--text-muted);
+      margin-bottom: 6px; margin-left: 4px;
+    }
+    .input {
+      width: 100%;
+      background: white;
+      border: 2px solid transparent;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-family: inherit;
+      font-size: 16px; color: var(--text);
+      transition: border 0.15s;
+    }
+    .input:focus { outline: none; border-color: var(--primary-soft); }
+    .input.amount { font-size: 22px; text-align: right; }
+
+    .cat-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    }
+    .cat-btn {
+      background: white;
+      border: 2px solid transparent;
+      border-radius: 14px;
+      padding: 10px 4px;
+      font-family: inherit;
+      font-size: 11px; color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 4px;
+    }
+    .cat-btn .emoji { font-size: 22px; }
+    .cat-btn.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .toggle-card {
+      display: flex; align-items: center; justify-content: space-between;
+      background: white; border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .toggle-card.rtn.active {
+      border-color: var(--coral);
+      background: #FFF0EE;
+    }
+    .toggle-card.inst.active {
+      border-color: var(--danger-red);
+      background: #FFECEC;
+    }
+    .toggle-card .label { font-size: 14px; }
+    .toggle-card .label small {
+      font-family: 'Gaegu', sans-serif;
+      display: block; font-size: 12px;
+      color: var(--text-muted); margin-top: 2px;
+    }
+    .toggle-card .check {
+      width: 24px; height: 24px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .toggle-card.rtn.active .check { background: var(--coral); border-color: var(--coral); }
+    .toggle-card.inst.active .check { background: var(--danger-red); border-color: var(--danger-red); }
+
+    .sub-field {
+      margin-top: 10px;
+      padding: 12px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 12px;
+    }
+    .sub-field .sub-label {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .trigger-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+    }
+    .trigger-btn {
+      background: white;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 8px 2px;
+      font-family: inherit;
+      font-size: 10px; color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 2px;
+    }
+    .trigger-btn .emoji { font-size: 20px; }
+    .trigger-btn.selected {
+      border-color: var(--coral);
+      background: #FFF0EE;
+    }
+
+    .month-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+    }
+    .month-btn {
+      background: white;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 10px 2px;
+      font-family: inherit;
+      font-size: 13px; color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .month-btn.selected {
+      border-color: var(--danger-red);
+      background: #FFECEC;
+      color: var(--danger-red);
+    }
+
+    .btn-row {
+      display: flex; gap: 10px; margin-top: 18px;
+    }
+    .btn {
+      flex: 1; height: 52px;
+      border-radius: 16px; border: none;
+      font-family: inherit; font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.1s, filter 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: var(--primary); color: white;
+      box-shadow: 0 4px 14px rgba(255,139,167,0.3);
+    }
+    .btn-primary:disabled {
+      background: var(--border); color: var(--text-muted);
+      box-shadow: none;
+    }
+    .btn-ghost { background: white; color: var(--text-muted); }
+    .btn-danger {
+      background: white; color: var(--danger);
+      border: 2px solid var(--danger);
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px; left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: var(--text); color: white;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      z-index: 200;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🧸 오늘의 소비일기</h1>
+    <div class="sub" id="month-label"></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-page="home"><span class="t-ico">🏠</span>홈</div>
+    <div class="tab" data-page="list"><span class="t-ico">📋</span>내역</div>
+    <div class="tab" data-page="wish"><span class="t-ico">💖</span>찜</div>
+    <div class="tab" data-page="inst"><span class="t-ico">💳</span>할부</div>
+    <div class="tab" data-page="reflect"><span class="t-ico">🪞</span>반성</div>
+  </div>
+
+  <!-- 홈 -->
+  <div class="page active" id="page-home">
+    <div class="quote-card" id="quote-card">
+      <div class="quote-icon" id="quote-icon">💬</div>
+      <div class="quote-text" id="quote-text"></div>
+    </div>
+
+    <div class="budget-card">
+      <div class="budget-label">이번 주기 예산</div>
+      <div class="budget-amount" id="budget-display" onclick="editBudget()">0<small>원</small></div>
+      <div class="budget-edit-hint">👆 탭하면 수정할 수 있어요</div>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-info">
+          <span id="progress-percent">0%</span>
+          <span id="progress-days"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-row">
+      <div class="mini-card used">
+        <div class="label">이번 주기 쓴 돈</div>
+        <div class="value" id="used-amount">0원</div>
+      </div>
+      <div class="mini-card remain">
+        <div class="label">남은 돈</div>
+        <div class="value" id="remain-amount">0원</div>
+      </div>
+    </div>
+
+    <div class="plant-banner" id="plant-banner">
+      <div class="plant-emoji" id="plant-emoji">🌱</div>
+      <div class="plant-text">
+        <div class="big" id="plant-big">새로운 시작이에요!</div>
+        <div class="small" id="plant-small">합리화 없이 지낸 날이 쌓이면 쑥쑥 자라나요</div>
+      </div>
+    </div>
+
+    <div class="section-title">🎨 카테고리별 소비</div>
+    <div class="cat-list" id="cat-list"></div>
+  </div>
+
+  <!-- 내역 -->
+  <div class="page" id="page-list">
+    <div id="list-container"></div>
+  </div>
+
+  <!-- 찜 -->
+  <div class="page" id="page-wish">
+    <div class="release-stats" id="release-stats" style="display:none;">
+      <div class="rs-badge">🕊️</div>
+      <div class="rs-main">
+        <div class="rs-label">이번 주기 마음 접은 기록</div>
+        <div class="rs-big"><span id="rs-count">0번</span> 참음 · <span id="rs-amount">0원</span> 아꼈어요</div>
+        <div class="rs-total" id="rs-total"></div>
+      </div>
+    </div>
+    <div class="wish-intro">
+      💭 <b>24시간 묵혀두기.</b> 당장 사고 싶은 마음이 커도 하룻밤 자고 일어나면 "꼭 필요했나?" 다시 보여요. 24시간 지나야 "구매" 버튼이 열려요 🌙
+    </div>
+    <div id="wish-container"></div>
+    <div id="released-section" style="display:none;">
+      <div class="section-title">🕊️ 마음 접은 것들</div>
+      <div class="cat-list" id="released-list"></div>
+    </div>
+  </div>
+
+  <!-- 할부 -->
+  <div class="page" id="page-inst">
+    <div class="inst-hero">
+      <div class="label">💳 신용카드 할부 현황</div>
+      <div class="amount" id="inst-total">0원</div>
+      <div class="sub-info" id="inst-sub">아직 할부 기록이 없어요</div>
+    </div>
+    <div id="inst-container"></div>
+  </div>
+
+  <!-- 반성 -->
+  <div class="page" id="page-reflect">
+    <div class="reflect-hero">
+      <div class="label">🪞 이번 주기 합리화한 소비</div>
+      <div class="amount" id="rtn-total">0원</div>
+      <div class="msg" id="rtn-msg">아직 합리화한 소비가 없어요 ✨</div>
+    </div>
+    <div class="trigger-card" id="trigger-top-card" style="display:none;">
+      <h3>📊 내 합리화 트리거 TOP 3</h3>
+      <div id="trigger-top-list"></div>
+    </div>
+    <div id="rtn-container"></div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" id="fab" onclick="fabClick()">＋ 지출 추가하기</button>
+
+  <!-- 지출 추가/수정 모달 -->
+  <div class="modal-backdrop" id="modal-add">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="modal-title">💸 지출 추가</div>
+
+      <div class="field">
+        <div class="field-label">얼마 썼어?</div>
+        <input type="number" inputmode="numeric" class="input amount" id="input-amount" placeholder="0" />
+      </div>
+
+      <div class="field">
+        <div class="field-label">어디에 썼어?</div>
+        <div class="cat-grid" id="cat-grid"></div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">메모 (선택)</div>
+        <input type="text" class="input" id="input-memo" placeholder="예: 아메리카노 ☕" maxlength="30" />
+      </div>
+
+      <div class="field">
+        <div class="toggle-card inst" id="inst-toggle" onclick="toggleInst()">
+          <div class="label">
+            💳 신용카드 할부 결제?
+            <small>예산에선 빠지지 않지만 할부 탭에 쌓여요</small>
+          </div>
+          <div class="check">✓</div>
+        </div>
+        <div class="sub-field" id="inst-months" style="display:none;">
+          <div class="sub-label">몇 개월 할부야?</div>
+          <div class="month-grid" id="month-grid"></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="toggle-card rtn" id="rtn-toggle" onclick="toggleRationalized()">
+          <div class="label">
+            🪞 혹시 합리화한 소비야?
+            <small>반성 탭에서 돌아볼 수 있어요</small>
+          </div>
+          <div class="check">✓</div>
+        </div>
+        <div class="sub-field" id="trigger-field" style="display:none;">
+          <div class="sub-label">🤔 어떤 상황이었어? (선택)</div>
+          <div class="trigger-grid" id="trigger-grid"></div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="closeAddModal()">취소</button>
+        <button class="btn btn-primary" id="save-btn" onclick="saveExpense()">저장하기</button>
+      </div>
+      <div class="btn-row" id="delete-row" style="display:none;">
+        <button class="btn btn-danger" onclick="deleteCurrent()">🗑️ 이 지출 삭제하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 예산 수정 모달 -->
+  <div class="modal-backdrop" id="modal-budget">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">💰 예산 & 주기 설정</div>
+      <div class="field">
+        <div class="field-label">한 주기에 얼마까지 쓸 수 있어?</div>
+        <input type="number" inputmode="numeric" class="input amount" id="input-budget" placeholder="0" />
+      </div>
+      <div class="field">
+        <div class="field-label">주기 시작일 (월급일 기준, 1~28)</div>
+        <input type="number" inputmode="numeric" class="input" id="input-cycle" placeholder="17" min="1" max="28" />
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="closeBudgetModal()">취소</button>
+        <button class="btn btn-primary" onclick="saveBudget()">저장하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 찜 추가 모달 -->
+  <div class="modal-backdrop" id="modal-wish">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">💖 찜해두기</div>
+      <div class="field">
+        <div class="field-label">뭘 사고싶어?</div>
+        <input type="text" class="input" id="input-wish-name" placeholder="예: 스탠드 조명" maxlength="30" />
+      </div>
+      <div class="field">
+        <div class="field-label">얼마 정도야? (선택)</div>
+        <input type="number" inputmode="numeric" class="input amount" id="input-wish-amount" placeholder="0" />
+      </div>
+      <div class="field">
+        <div class="field-label">어떤 분류야?</div>
+        <div class="cat-grid" id="wish-cat-grid"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="closeWishModal()">취소</button>
+        <button class="btn btn-primary" onclick="saveWish()">찜하기 💖</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const CATEGORIES = [
+      { id: 'food',     name: '식비',       emoji: '🍚', color: '#FFD3B5' },
+      { id: 'cafe',     name: '카페·간식',  emoji: '☕', color: '#FFC6D3' },
+      { id: 'shopping', name: '쇼핑',       emoji: '🛍️', color: '#E0BBE4' },
+      { id: 'culture',  name: '문화·여가',  emoji: '🎬', color: '#B5D8EB' },
+      { id: 'living',   name: '생활용품',   emoji: '🧴', color: '#A8E6D0' },
+      { id: 'health',   name: '의료·건강',  emoji: '💊', color: '#FFAAA5' },
+      { id: 'etc',      name: '기타',       emoji: '📦', color: '#D4C5B9' },
+    ];
+    const catMap = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
+
+    const TRIGGERS = [
+      { id: 'sale',    emoji: '🏷️', name: '세일' },
+      { id: 'stress',  emoji: '😤', name: '스트레스' },
+      { id: 'normal',  emoji: '💸', name: '이정도는' },
+      { id: 'someday', emoji: '⏳', name: '언젠간' },
+      { id: 'better',  emoji: '✨', name: '기왕이면' },
+    ];
+    const triggerMap = Object.fromEntries(TRIGGERS.map(t => [t.id, t]));
+
+    const INSTALL_MONTHS = [2, 3, 4, 6, 12];
+    const WISH_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
+    const STORAGE_KEY = 'gajebu_data_v1';
+    let state = loadState();
+    let currentTab = 'home';
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const base = { budget: 0, cycleStart: 17, expenses: [], installments: [], wishlist: [], released: [] };
+        if (!raw) return base;
+        const p = JSON.parse(raw);
+        return {
+          budget: p.budget || 0,
+          cycleStart: p.cycleStart || 17,
+          expenses: p.expenses || [],
+          installments: p.installments || [],
+          wishlist: p.wishlist || [],
+          released: p.released || [],
+        };
+      } catch (e) {
+        return { budget: 0, cycleStart: 17, expenses: [], installments: [], wishlist: [], released: [] };
+      }
+    }
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    // ===== 유틸 =====
+    const formatWon = n => (n || 0).toLocaleString('ko-KR') + '원';
+
+    function currentCycle() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const startDay = state.cycleStart || 17;
+      let start;
+      if (today.getDate() >= startDay) {
+        start = new Date(today.getFullYear(), today.getMonth(), startDay);
+      } else {
+        start = new Date(today.getFullYear(), today.getMonth() - 1, startDay);
+      }
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1);
+      return { start, end };
+    }
+    function isInCurrentCycle(dateStr) {
+      const d = new Date(dateStr);
+      const { start, end } = currentCycle();
+      return d >= start && d < end;
+    }
+    function thisCycleExpenses() { return state.expenses.filter(e => isInCurrentCycle(e.date)); }
+    function thisCycleInstallments() { return state.installments.filter(i => isInCurrentCycle(i.date)); }
+
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._to);
+      t._to = setTimeout(() => t.classList.remove('show'), 1800);
+    }
+    const uuid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    function daysLeftInCycle() {
+      const { end } = currentCycle();
+      const now = new Date(); now.setHours(0,0,0,0);
+      return Math.max(0, Math.round((end - now) / 86400000));
+    }
+
+    // ===== 식물(무합리화 streak) =====
+    function computeStreak() {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const all = [...state.expenses, ...state.installments];
+      const rationalized = all.filter(x => x.rationalized);
+
+      if (rationalized.length === 0 && all.length === 0) {
+        return { days: 0, wilted: false, fresh: true };
+      }
+      if (rationalized.length === 0) {
+        const firstTs = Math.min(...all.map(x => new Date(x.date).getTime()));
+        const first = new Date(firstTs); first.setHours(0,0,0,0);
+        const days = Math.floor((today - first) / 86400000) + 1;
+        return { days, wilted: false, fresh: false };
+      }
+      const lastRtnTs = Math.max(...rationalized.map(x => new Date(x.date).getTime()));
+      const lastRtn = new Date(lastRtnTs); lastRtn.setHours(0,0,0,0);
+
+      if (lastRtn.getTime() === today.getTime()) {
+        return { days: 0, wilted: true, fresh: false };
+      }
+      const days = Math.floor((today - lastRtn) / 86400000);
+      return { days, wilted: false, fresh: false };
+    }
+
+    function plantStage(s) {
+      if (s.wilted) return { emoji: '🥀', big: '오늘 합리화가 있었어요', small: '내일부터 다시! 괜찮아요 🌷' };
+      if (s.fresh) return { emoji: '🌱', big: '새로운 시작이에요!', small: '합리화 없이 지낸 날이 쌓이면 쑥쑥 자라나요' };
+      const d = s.days;
+      if (d >= 30) return { emoji: '🌸', big: `${d}일째 꽃이 피었어요!`, small: '정말 멋져요! 이 감각 기억해두기 ✨' };
+      if (d >= 14) return { emoji: '🌳', big: `${d}일째 튼튼한 나무`, small: '완전 잘하고 있어요 💪' };
+      if (d >= 7)  return { emoji: '🪴', big: `${d}일째 화분 단계`, small: '일주일 돌파! 계속 가봐요' };
+      if (d >= 3)  return { emoji: '🌿', big: `${d}일째 쑥쑥`, small: '새잎이 돋아났어요 🍃' };
+      return { emoji: '🌱', big: `${d}일째 새싹`, small: '이대로 쭈욱~ 가봐요' };
+    }
+
+    // ===== 오늘의 한마디 (미래 상상 + 살짝 자극 믹스) =====
+    const DAILY_QUOTES = [
+      "오늘 아낀 만원이 6개월 뒤 여행 티켓이 돼요 ✈️",
+      "세일은 또 와요. 진짜로 🏷️",
+      "1년 뒤 통장 보며 웃는 내 모습, 상상해봐요 😊",
+      "이번 주기 아낀 돈으로 뭐 할까, 미리 계획해봐요 🌴",
+      "'이 정도는'이 쌓이면 목표가 멀어져요 💸",
+      "목표 금액 채운 날의 기쁨, 미리 맛보기 🎊",
+      "미래의 내가 지금 나한테 고맙다고 할 거예요 💌",
+      "내가 원해? 광고가 원해? 🤔",
+      "모은 돈은 곧 내 선택지의 넓이예요 🗝️",
+      "3개월 후 여유로워진 내 모습 그려봐요 🌅",
+      "합리화는 5초, 후회는 5일 🫠",
+      "저축은 미래의 나한테 보내는 선물 💝",
+      "통장에 0 하나 더 붙으면 뭐 하고 싶어요? 💫",
+      "쇼핑카트 담아두고 하룻밤 자고 와요 🛒",
+      "작은 절약들이 모여서 큰 자유가 돼요 🕊️",
+      "이번 주기 잘 지킨 나, 얼마나 뿌듯할까요 🏆",
+      "후회할 것 같으면 99% 후회해요 🙊",
+      "모으는 동안 자존감도 같이 자라나요 ✨",
+      "여행가방 가볍게 싸는 그 날을 떠올리며 🧳",
+      "지금 장바구니, 내일의 내가 울어요 😭",
+      "오늘의 절제가 내일의 여유가 돼요 🌷",
+      "꾸준한 나를 미래의 내가 사랑할 거예요 💕",
+      "'언젠간 살 거'라면 그 언젠가까지 기다려봐요 ⏳",
+      "목표 이룬 날, 내가 나에게 해줄 말은? 🎀",
+      "지금 아낀 돈이 훗날 나를 지켜줘요 🛡️",
+      "반년 뒤 '잘했다' 할 선택을 오늘 해요 🌈",
+    ];
+
+    function pickQuote() {
+      const s = computeStreak();
+      if (s.wilted) {
+        return { icon: '🌷', text: '오늘은 그럴 수 있어요. 내일 다시 시작해봐요 🌱', tone: '' };
+      }
+      const used = thisCycleExpenses().reduce((sum, e) => sum + e.amount, 0);
+      if (state.budget > 0) {
+        if (used > state.budget) {
+          return { icon: '🎯', text: '이번 주기는 넘었지만, 다음 주기 목표를 다시 그려봐요', tone: 'punch' };
+        }
+        if (used / state.budget >= 0.8) {
+          return { icon: '🎁', text: '예산 80%! 남은 만큼 아끼면 미래의 나한테 선물 돼요', tone: 'punch' };
+        }
+      }
+      if (s.days >= 7 && !s.fresh) {
+        return { icon: '🌟', text: `${s.days}일 연속! 미래의 내가 웃고 있어요`, tone: 'cheer' };
+      }
+      const dayNum = Math.floor(Date.now() / 86400000);
+      return { icon: '💭', text: DAILY_QUOTES[dayNum % DAILY_QUOTES.length], tone: '' };
+    }
+
+    function renderQuote() {
+      const q = pickQuote();
+      document.getElementById('quote-icon').textContent = q.icon;
+      document.getElementById('quote-text').textContent = q.text;
+      const card = document.getElementById('quote-card');
+      card.classList.remove('punch', 'cheer');
+      if (q.tone) card.classList.add(q.tone);
+    }
+
+    function renderPlant() {
+      const s = computeStreak();
+      const stage = plantStage(s);
+      document.getElementById('plant-emoji').textContent = stage.emoji;
+      document.getElementById('plant-big').textContent = stage.big;
+      document.getElementById('plant-small').textContent = stage.small;
+      document.getElementById('plant-banner').classList.toggle('wilted', s.wilted);
+    }
+
+    // ===== 렌더 =====
+    function renderMonthLabel() {
+      const { start, end } = currentCycle();
+      const endInc = new Date(end.getTime() - 86400000);
+      const s = `${start.getMonth()+1}/${start.getDate()}`;
+      const e = `${endInc.getMonth()+1}/${endInc.getDate()}`;
+      document.getElementById('month-label').textContent = `${s} ~ ${e} 주기 ✨`;
+    }
+
+    function renderHome() {
+      const exps = thisCycleExpenses();
+      const used = exps.reduce((s, e) => s + e.amount, 0);
+      const budget = state.budget;
+      const remain = budget - used;
+      const pct = budget > 0 ? Math.min(100, (used / budget) * 100) : 0;
+
+      document.getElementById('budget-display').innerHTML =
+        `${formatWon(budget).replace('원','')}<small>원</small>`;
+      document.getElementById('used-amount').textContent = formatWon(used);
+      const remainEl = document.getElementById('remain-amount');
+      remainEl.textContent = remain >= 0 ? formatWon(remain) : `-${formatWon(Math.abs(remain))}`;
+      remainEl.classList.toggle('over', remain < 0);
+
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-percent').textContent = Math.round(pct) + '% 사용';
+      const dleft = daysLeftInCycle();
+      document.getElementById('progress-days').textContent = dleft > 0 ? `${dleft}일 남음` : '주기 마지막 날!';
+
+      const byCat = {};
+      CATEGORIES.forEach(c => byCat[c.id] = 0);
+      exps.forEach(e => { byCat[e.category] = (byCat[e.category] || 0) + e.amount; });
+      const maxVal = Math.max(...Object.values(byCat), 1);
+
+      const list = document.getElementById('cat-list');
+      if (used === 0) {
+        list.innerHTML = `<div class="empty-state"><div class="big">🌱</div><div class="msg">아직 지출이 없어요<br/>아래 버튼으로 추가해봐요!</div></div>`;
+      } else {
+        list.innerHTML = CATEGORIES
+          .filter(c => byCat[c.id] > 0)
+          .sort((a, b) => byCat[b.id] - byCat[a.id])
+          .map(c => {
+            const v = byCat[c.id];
+            const w = (v / maxVal) * 100;
+            return `
+              <div class="cat-item">
+                <div class="cat-emoji" style="background:${c.color}">${c.emoji}</div>
+                <div class="cat-info">
+                  <div class="cat-name">${c.name}</div>
+                  <div class="cat-bar-wrap">
+                    <div class="cat-bar-fill" style="width:${w}%; background:${c.color};"></div>
+                  </div>
+                </div>
+                <div class="cat-amount">${formatWon(v)}</div>
+              </div>
+            `;
+          }).join('');
+      }
+    }
+
+    function renderList() {
+      const container = document.getElementById('list-container');
+      const exps = thisCycleExpenses().slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+      if (exps.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="big">📭</div><div class="msg">이번 주기 지출이 없어요<br/>추가해봐요!</div></div>`;
+        return;
+      }
+      const groups = {};
+      exps.forEach(e => {
+        const d = new Date(e.date);
+        const key = `${d.getMonth()+1}/${d.getDate()}`;
+        const wd = ['일','월','화','수','목','금','토'][d.getDay()];
+        const dayKey = `${key} (${wd})`;
+        if (!groups[dayKey]) groups[dayKey] = { items: [], total: 0 };
+        groups[dayKey].items.push(e);
+        groups[dayKey].total += e.amount;
+      });
+      container.innerHTML = Object.entries(groups).map(([day, g]) => `
+        <div class="expense-day">
+          <div class="day-header"><span>${day}</span><span>${formatWon(g.total)}</span></div>
+          <div class="expense-list">
+            ${g.items.map(e => {
+              const c = catMap[e.category] || catMap.etc;
+              const trig = e.trigger ? triggerMap[e.trigger] : null;
+              return `
+                <div class="expense-item" onclick="openEditModal('${e.id}', 'expense')">
+                  <div class="expense-emoji" style="background:${c.color}">${c.emoji}</div>
+                  <div class="expense-detail">
+                    <div class="expense-memo ${e.memo ? '' : 'empty'}">${e.memo || c.name}</div>
+                    <div class="expense-meta">
+                      ${c.name}
+                      ${e.rationalized ? '<span class="badge rtn">합리화</span>' : ''}
+                      ${trig ? `<span class="badge trigger">${trig.emoji} ${trig.name}</span>` : ''}
+                    </div>
+                  </div>
+                  <div class="expense-amount">${formatWon(e.amount)}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderWish() {
+      // 마음 접은 기록 통계
+      const { start, end } = currentCycle();
+      const startMs = start.getTime(), endMs = end.getTime();
+      const cycleRel = state.released.filter(r => r.releasedAt >= startMs && r.releasedAt < endMs);
+      const statsEl = document.getElementById('release-stats');
+      if (cycleRel.length > 0) {
+        statsEl.style.display = 'flex';
+        const amt = cycleRel.reduce((s, r) => s + (r.amount || 0), 0);
+        document.getElementById('rs-count').textContent = cycleRel.length + '번';
+        document.getElementById('rs-amount').textContent = formatWon(amt);
+        const totalAmt = state.released.reduce((s, r) => s + (r.amount || 0), 0);
+        const totalCount = state.released.length;
+        const rsTotal = document.getElementById('rs-total');
+        rsTotal.textContent = totalCount > cycleRel.length
+          ? `지금까지 총 ${totalCount}번 · ${formatWon(totalAmt)} 💪`
+          : '미래의 내가 고마워할 거예요 💕';
+      } else {
+        statsEl.style.display = 'none';
+      }
+
+      // 마음 접은 히스토리 (최근 10)
+      const history = state.released.slice().sort((a, b) => b.releasedAt - a.releasedAt).slice(0, 10);
+      const historySection = document.getElementById('released-section');
+      if (history.length > 0) {
+        historySection.style.display = 'block';
+        document.getElementById('released-list').innerHTML = history.map(r => {
+          const c = catMap[r.category] || catMap.etc;
+          const d = new Date(r.releasedAt);
+          const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
+          return `
+            <div class="released-item">
+              <div class="r-emoji" style="background:${c.color}">${c.emoji}</div>
+              <div class="r-info">
+                <div class="r-name">${r.name}</div>
+                <div class="r-meta">${dateStr} 마음 접음 · ${c.name}</div>
+              </div>
+              ${r.amount ? `<div class="r-saved">+${formatWon(r.amount)}</div>` : ''}
+            </div>
+          `;
+        }).join('');
+      } else {
+        historySection.style.display = 'none';
+      }
+
+      const container = document.getElementById('wish-container');
+      const list = state.wishlist.slice().sort((a, b) => b.createdAt - a.createdAt);
+      if (list.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="big">💭</div><div class="msg">아직 찜한 게 없어요<br/>충동 오면 여기 먼저 담아봐요!</div></div>`;
+        return;
+      }
+      const now = Date.now();
+      container.innerHTML = list.map(w => {
+        const c = catMap[w.category] || catMap.etc;
+        const elapsed = now - w.createdAt;
+        const canBuy = elapsed >= WISH_COOLDOWN_MS;
+        const remainMs = WISH_COOLDOWN_MS - elapsed;
+        const remainH = Math.floor(remainMs / 3600000);
+        const remainM = Math.floor((remainMs % 3600000) / 60000);
+        const timeLabel = canBuy
+          ? '✅ 24시간 지났어요. 지금 결정할 시간!'
+          : `⏳ ${remainH}시간 ${remainM}분 후에 구매 가능`;
+        return `
+          <div class="wish-item">
+            <div class="wish-top">
+              <div class="emoji" style="background:${c.color}">${c.emoji}</div>
+              <div class="info">
+                <div class="name">${w.name}</div>
+                <div class="meta">${c.name}${w.amount ? ' · ' + formatWon(w.amount) : ''}</div>
+              </div>
+            </div>
+            <div class="meta" style="margin-bottom:10px; font-family:'Gaegu',sans-serif; font-size:12px; color:${canBuy?'var(--mint)':'var(--text-muted)'};">${timeLabel}</div>
+            <div class="wish-btns">
+              <button class="wish-btn buy" ${canBuy?'':'disabled'} onclick="buyWish('${w.id}')">🛒 지금 살래</button>
+              <button class="wish-btn release" onclick="releaseWish('${w.id}')">🕊️ 마음 접기</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderInst() {
+      const all = state.installments.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      // 남은 총 잔액 = 각 항목의 (남은 회차 / 총 회차) * amount 합
+      const now = new Date();
+      let remainingTotal = 0;
+      let thisCycleNew = 0;
+      all.forEach(i => {
+        const paid = monthsPassed(i.date, now);
+        const remainMonths = Math.max(0, i.months - paid);
+        remainingTotal += (i.amount / i.months) * remainMonths;
+        if (isInCurrentCycle(i.date)) thisCycleNew += i.amount;
+      });
+
+      document.getElementById('inst-total').textContent = formatWon(Math.round(remainingTotal));
+      document.getElementById('inst-sub').innerHTML = all.length === 0
+        ? '아직 할부 기록이 없어요'
+        : `이번 주기 새로 만든 할부: <b>${formatWon(thisCycleNew)}</b>`;
+
+      const container = document.getElementById('inst-container');
+      if (all.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="big">💳</div><div class="msg">할부 결제 기록이 없어요<br/>지출 입력할 때 "할부" 체크로 기록할 수 있어요</div></div>`;
+        return;
+      }
+      container.innerHTML = all.map(i => {
+        const c = catMap[i.category] || catMap.etc;
+        const paid = Math.min(i.months, monthsPassed(i.date, now));
+        const monthly = Math.round(i.amount / i.months);
+        const d = new Date(i.date);
+        const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
+        const done = paid >= i.months;
+        return `
+          <div class="inst-item" onclick="openEditModal('${i.id}', 'installment')">
+            <div class="emoji" style="background:${c.color}">${c.emoji}</div>
+            <div class="info">
+              <div class="name">${i.memo || c.name}</div>
+              <div class="detail">${dateStr} · ${i.months}개월 중 ${paid}/${i.months}${done?' ✅':''} ${i.rationalized?'<span class="badge rtn">합리화</span>':''}</div>
+            </div>
+            <div class="amt-col">
+              <div class="total">${formatWon(i.amount)}</div>
+              <div class="monthly">월 ${formatWon(monthly)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function monthsPassed(fromDate, toDate) {
+      const f = new Date(fromDate);
+      const y = toDate.getFullYear() - f.getFullYear();
+      const m = toDate.getMonth() - f.getMonth();
+      let passed = y * 12 + m;
+      if (toDate.getDate() < f.getDate()) passed -= 1;
+      return Math.max(0, passed);
+    }
+
+    function renderReflect() {
+      const rtnExps = [...thisCycleExpenses(), ...thisCycleInstallments()].filter(x => x.rationalized);
+      const total = rtnExps.reduce((s, e) => s + e.amount, 0);
+      document.getElementById('rtn-total').textContent = formatWon(total);
+      const msgEl = document.getElementById('rtn-msg');
+      if (rtnExps.length === 0) {
+        msgEl.textContent = '아직 합리화한 소비가 없어요 ✨';
+      } else if (total < 30000) {
+        msgEl.textContent = '조금 있네요! 다음엔 한번 더 생각해보기 💭';
+      } else if (total < 100000) {
+        msgEl.textContent = '슬슬 모였어요... 잠깐 돌아볼 시간 🫣';
+      } else {
+        msgEl.textContent = '많이 쌓였어요 😳 반성 타임!';
+      }
+
+      // 트리거 TOP 3
+      const triggerStats = {};
+      rtnExps.forEach(e => {
+        if (!e.trigger) return;
+        if (!triggerStats[e.trigger]) triggerStats[e.trigger] = { count: 0, amount: 0 };
+        triggerStats[e.trigger].count += 1;
+        triggerStats[e.trigger].amount += e.amount;
+      });
+      const ranked = Object.entries(triggerStats)
+        .map(([id, s]) => ({ id, ...s, ...triggerMap[id] }))
+        .sort((a, b) => b.amount - a.amount)
+        .slice(0, 3);
+
+      const topCard = document.getElementById('trigger-top-card');
+      if (ranked.length === 0) {
+        topCard.style.display = 'none';
+      } else {
+        topCard.style.display = 'block';
+        document.getElementById('trigger-top-list').innerHTML = ranked.map((r, idx) => `
+          <div class="trigger-rank">
+            <div class="rank-num">${idx+1}</div>
+            <div class="rank-emoji">${r.emoji}</div>
+            <div class="rank-info">
+              <div class="rank-label">${r.name}</div>
+              <div class="rank-detail">${r.count}회</div>
+            </div>
+            <div class="rank-amount">${formatWon(r.amount)}</div>
+          </div>
+        `).join('');
+      }
+
+      const container = document.getElementById('rtn-container');
+      if (rtnExps.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="big">🌿</div><div class="msg">합리화 없는 깔끔한 주기예요!<br/>멋져요 ✨</div></div>`;
+        return;
+      }
+      rtnExps.sort((a, b) => new Date(b.date) - new Date(a.date));
+      container.innerHTML = `
+        <div class="section-title">📝 합리화한 소비 내역</div>
+        <div class="expense-list">
+          ${rtnExps.map(e => {
+            const c = catMap[e.category] || catMap.etc;
+            const trig = e.trigger ? triggerMap[e.trigger] : null;
+            const d = new Date(e.date);
+            const day = `${d.getMonth()+1}/${d.getDate()}`;
+            const isInst = e.months != null;
+            return `
+              <div class="expense-item" onclick="openEditModal('${e.id}', '${isInst?'installment':'expense'}')">
+                <div class="expense-emoji" style="background:${c.color}">${c.emoji}</div>
+                <div class="expense-detail">
+                  <div class="expense-memo ${e.memo ? '' : 'empty'}">${e.memo || c.name}</div>
+                  <div class="expense-meta">
+                    ${day} · ${c.name}
+                    ${trig ? `<span class="badge trigger">${trig.emoji} ${trig.name}</span>` : ''}
+                    ${isInst ? '<span class="badge inst">할부</span>' : ''}
+                  </div>
+                </div>
+                <div class="expense-amount">${formatWon(e.amount)}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderAll() {
+      renderMonthLabel();
+      renderPlant();
+      renderQuote();
+      renderHome();
+      renderList();
+      renderWish();
+      renderInst();
+      renderReflect();
+    }
+
+    // ===== 탭 =====
+    document.querySelectorAll('.tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        currentTab = t.dataset.page;
+        document.getElementById('page-' + currentTab).classList.add('active');
+        updateFab();
+      });
+    });
+
+    function updateFab() {
+      const fab = document.getElementById('fab');
+      if (currentTab === 'wish') {
+        fab.textContent = '＋ 찜 추가하기';
+      } else {
+        fab.textContent = '＋ 지출 추가하기';
+      }
+    }
+    function fabClick() {
+      if (currentTab === 'wish') openWishModal();
+      else openAddModal();
+    }
+
+    // ===== 지출 모달 =====
+    let editingId = null;
+    let editingType = 'expense'; // 'expense' | 'installment'
+    let selectedCat = null;
+    let isRationalized = false;
+    let selectedTrigger = null;
+    let isInstall = false;
+    let selectedMonths = 3;
+
+    function renderCatGrid(containerId, onSelect) {
+      document.getElementById(containerId).innerHTML = CATEGORIES.map(c => `
+        <button type="button" class="cat-btn ${selectedCat === c.id ? 'selected' : ''}" data-cat="${c.id}">
+          <span class="emoji">${c.emoji}</span>
+          <span>${c.name}</span>
+        </button>
+      `).join('');
+      document.querySelectorAll('#' + containerId + ' .cat-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          selectedCat = b.dataset.cat;
+          renderCatGrid(containerId, onSelect);
+        });
+      });
+    }
+
+    function renderTriggerGrid() {
+      document.getElementById('trigger-grid').innerHTML = TRIGGERS.map(t => `
+        <button type="button" class="trigger-btn ${selectedTrigger === t.id ? 'selected' : ''}" data-trig="${t.id}">
+          <span class="emoji">${t.emoji}</span>
+          <span>${t.name}</span>
+        </button>
+      `).join('');
+      document.querySelectorAll('.trigger-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          selectedTrigger = selectedTrigger === b.dataset.trig ? null : b.dataset.trig;
+          renderTriggerGrid();
+        });
+      });
+    }
+
+    function renderMonthGrid() {
+      document.getElementById('month-grid').innerHTML = INSTALL_MONTHS.map(m => `
+        <button type="button" class="month-btn ${selectedMonths === m ? 'selected' : ''}" data-m="${m}">
+          ${m}개월
+        </button>
+      `).join('');
+      document.querySelectorAll('.month-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          selectedMonths = parseInt(b.dataset.m, 10);
+          renderMonthGrid();
+        });
+      });
+    }
+
+    function openAddModal(prefill) {
+      editingId = null;
+      editingType = 'expense';
+      selectedCat = prefill?.category || null;
+      isRationalized = false;
+      selectedTrigger = null;
+      isInstall = false;
+      selectedMonths = 3;
+
+      document.getElementById('modal-title').textContent = '💸 지출 추가';
+      document.getElementById('input-amount').value = prefill?.amount || '';
+      document.getElementById('input-memo').value = prefill?.memo || '';
+      document.getElementById('rtn-toggle').classList.remove('active');
+      document.getElementById('inst-toggle').classList.remove('active');
+      document.getElementById('trigger-field').style.display = 'none';
+      document.getElementById('inst-months').style.display = 'none';
+      document.getElementById('delete-row').style.display = 'none';
+
+      renderCatGrid('cat-grid');
+      renderTriggerGrid();
+      renderMonthGrid();
+      document.getElementById('modal-add').classList.add('active');
+      setTimeout(() => document.getElementById('input-amount').focus(), 100);
+    }
+
+    function openEditModal(id, type) {
+      const arr = type === 'installment' ? state.installments : state.expenses;
+      const e = arr.find(x => x.id === id);
+      if (!e) return;
+      editingId = id;
+      editingType = type;
+      selectedCat = e.category;
+      isRationalized = !!e.rationalized;
+      selectedTrigger = e.trigger || null;
+      isInstall = type === 'installment';
+      selectedMonths = e.months || 3;
+
+      document.getElementById('modal-title').textContent = isInstall ? '✏️ 할부 수정' : '✏️ 지출 수정';
+      document.getElementById('input-amount').value = e.amount;
+      document.getElementById('input-memo').value = e.memo || '';
+      document.getElementById('rtn-toggle').classList.toggle('active', isRationalized);
+      document.getElementById('inst-toggle').classList.toggle('active', isInstall);
+      document.getElementById('trigger-field').style.display = isRationalized ? 'block' : 'none';
+      document.getElementById('inst-months').style.display = isInstall ? 'block' : 'none';
+      document.getElementById('delete-row').style.display = 'flex';
+
+      renderCatGrid('cat-grid');
+      renderTriggerGrid();
+      renderMonthGrid();
+      document.getElementById('modal-add').classList.add('active');
+    }
+
+    function closeAddModal() { document.getElementById('modal-add').classList.remove('active'); }
+
+    function toggleRationalized() {
+      isRationalized = !isRationalized;
+      document.getElementById('rtn-toggle').classList.toggle('active', isRationalized);
+      document.getElementById('trigger-field').style.display = isRationalized ? 'block' : 'none';
+      if (!isRationalized) selectedTrigger = null;
+      renderTriggerGrid();
+    }
+
+    function toggleInst() {
+      isInstall = !isInstall;
+      document.getElementById('inst-toggle').classList.toggle('active', isInstall);
+      document.getElementById('inst-months').style.display = isInstall ? 'block' : 'none';
+    }
+
+    function saveExpense() {
+      const amount = parseInt(document.getElementById('input-amount').value, 10);
+      const memo = document.getElementById('input-memo').value.trim();
+      if (!amount || amount <= 0) { toast('금액을 입력해줘!'); return; }
+      if (!selectedCat) { toast('카테고리를 골라줘!'); return; }
+      if (isInstall && (!selectedMonths || selectedMonths < 2)) { toast('할부 개월을 골라줘!'); return; }
+
+      const baseObj = {
+        amount,
+        category: selectedCat,
+        memo,
+        rationalized: isRationalized,
+        trigger: isRationalized ? selectedTrigger : null,
+      };
+
+      // 수정 모드
+      if (editingId) {
+        // 타입 변경되면 이동
+        if (editingType === 'installment' && !isInstall) {
+          state.installments = state.installments.filter(x => x.id !== editingId);
+          state.expenses.push({ id: editingId, ...baseObj, date: new Date().toISOString() });
+        } else if (editingType === 'expense' && isInstall) {
+          state.expenses = state.expenses.filter(x => x.id !== editingId);
+          state.installments.push({ id: editingId, ...baseObj, months: selectedMonths, date: new Date().toISOString() });
+        } else if (isInstall) {
+          const it = state.installments.find(x => x.id === editingId);
+          Object.assign(it, baseObj, { months: selectedMonths });
+        } else {
+          const it = state.expenses.find(x => x.id === editingId);
+          Object.assign(it, baseObj);
+        }
+        toast('수정했어요 ✨');
+      } else {
+        // 신규
+        const newItem = { id: uuid(), ...baseObj, date: new Date().toISOString() };
+        if (isInstall) {
+          state.installments.push({ ...newItem, months: selectedMonths });
+          toast('할부 기록 완료! 💳');
+        } else {
+          state.expenses.push(newItem);
+          toast('저장 완료! 🌸');
+        }
+      }
+      saveState();
+      renderAll();
+      closeAddModal();
+    }
+
+    function deleteCurrent() {
+      if (!editingId) return;
+      if (!confirm('정말 삭제할까요?')) return;
+      if (editingType === 'installment') {
+        state.installments = state.installments.filter(x => x.id !== editingId);
+      } else {
+        state.expenses = state.expenses.filter(x => x.id !== editingId);
+      }
+      saveState();
+      renderAll();
+      closeAddModal();
+      toast('삭제했어요 🗑️');
+    }
+
+    // ===== 찜 모달 =====
+    let wishSelectedCat = null;
+
+    function renderWishCatGrid() {
+      document.getElementById('wish-cat-grid').innerHTML = CATEGORIES.map(c => `
+        <button type="button" class="cat-btn ${wishSelectedCat === c.id ? 'selected' : ''}" data-cat="${c.id}">
+          <span class="emoji">${c.emoji}</span>
+          <span>${c.name}</span>
+        </button>
+      `).join('');
+      document.querySelectorAll('#wish-cat-grid .cat-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          wishSelectedCat = b.dataset.cat;
+          renderWishCatGrid();
+        });
+      });
+    }
+
+    function openWishModal() {
+      wishSelectedCat = null;
+      document.getElementById('input-wish-name').value = '';
+      document.getElementById('input-wish-amount').value = '';
+      renderWishCatGrid();
+      document.getElementById('modal-wish').classList.add('active');
+      setTimeout(() => document.getElementById('input-wish-name').focus(), 100);
+    }
+    function closeWishModal() { document.getElementById('modal-wish').classList.remove('active'); }
+
+    function saveWish() {
+      const name = document.getElementById('input-wish-name').value.trim();
+      const amount = parseInt(document.getElementById('input-wish-amount').value, 10) || 0;
+      if (!name) { toast('뭘 찜할 건지 적어줘!'); return; }
+      if (!wishSelectedCat) { toast('카테고리를 골라줘!'); return; }
+      state.wishlist.push({
+        id: uuid(),
+        name,
+        amount,
+        category: wishSelectedCat,
+        createdAt: Date.now(),
+      });
+      saveState();
+      renderAll();
+      closeWishModal();
+      toast('찜 완료! 내일 다시 생각해봐요 🌙');
+    }
+
+    function buyWish(id) {
+      const w = state.wishlist.find(x => x.id === id);
+      if (!w) return;
+      if (Date.now() - w.createdAt < WISH_COOLDOWN_MS) { toast('아직 24시간 안 지났어요!'); return; }
+      // 바로 지출 모달 열기 (prefill)
+      openAddModal({ amount: w.amount, category: w.category, memo: w.name });
+      // 찜 제거
+      state.wishlist = state.wishlist.filter(x => x.id !== id);
+      saveState();
+    }
+
+    function releaseWish(id) {
+      const w = state.wishlist.find(x => x.id === id);
+      if (!w) return;
+      if (!confirm('마음 접을까요? 🕊️')) return;
+      state.released.push({
+        id: w.id,
+        name: w.name,
+        amount: w.amount || 0,
+        category: w.category,
+        releasedAt: Date.now(),
+      });
+      state.wishlist = state.wishlist.filter(x => x.id !== id);
+      saveState();
+      renderAll();
+      toast('잘 보냈어요! 멋져요 🌷');
+    }
+
+    // ===== 예산 모달 =====
+    function editBudget() {
+      document.getElementById('input-budget').value = state.budget || '';
+      document.getElementById('input-cycle').value = state.cycleStart || 17;
+      document.getElementById('modal-budget').classList.add('active');
+      setTimeout(() => document.getElementById('input-budget').focus(), 100);
+    }
+    function closeBudgetModal() { document.getElementById('modal-budget').classList.remove('active'); }
+    function saveBudget() {
+      const v = parseInt(document.getElementById('input-budget').value, 10);
+      const c = parseInt(document.getElementById('input-cycle').value, 10);
+      if (!v || v <= 0) { toast('금액을 입력해줘!'); return; }
+      if (!c || c < 1 || c > 28) { toast('주기 시작일은 1~28 사이로!'); return; }
+      state.budget = v;
+      state.cycleStart = c;
+      saveState();
+      renderAll();
+      closeBudgetModal();
+      toast('저장했어요 💰');
+    }
+
+    // 배경 탭하면 닫기
+    document.getElementById('modal-add').addEventListener('click', closeAddModal);
+    document.getElementById('modal-budget').addEventListener('click', closeBudgetModal);
+    document.getElementById('modal-wish').addEventListener('click', closeWishModal);
+
+    // 1분마다 찜 카운트다운 갱신
+    setInterval(() => {
+      if (currentTab === 'wish') renderWish();
+    }, 60000);
+
+    renderAll();
+    updateFab();
+
+    if (state.budget === 0) {
+      setTimeout(() => {
+        toast('먼저 예산 카드를 탭해서 예산을 정해봐요 💕');
+      }, 400);
+    }
+  </script>
+</body>
+</html>
